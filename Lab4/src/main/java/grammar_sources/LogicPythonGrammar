@@ -1,0 +1,155 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+
+grammar LogicPython {
+    public class Tree {
+        String node;
+
+        List<Tree> children;
+
+        public Tree(String node, Tree... children) {
+            this.node = node;
+            this.children = Arrays.asList(children);
+        }
+
+        public Tree (String node) {
+            this.node = node;
+            this.children = new ArrayList<>();
+        }
+
+        public Tree add(Tree child) {
+            children.add(child);
+            return this;
+        }
+
+        public Tree addDefault(Tree child) {
+            if (children.isEmpty()) {
+                add(child);
+            }
+            return this;
+        }
+
+        public void writeGraphToFile(String fn) {
+            try (BufferedWriter out = new BufferedWriter(new FileWriter(fn))) {
+                out.write(toGraphString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public String toString() {
+            return toGraphString();
+        }
+
+        public String toGraphString() {
+            StringBuilder sb = new StringBuilder("digraph {").append(System.lineSeparator());
+            addGraph(sb);
+            sb.append('}');
+            return sb.toString();
+        }
+
+        public void addGraph(StringBuilder sb) {
+            addGraph(sb, new IdGenerator());
+        }
+
+        private class IdGenerator {
+            int id;
+            IdGenerator () {
+                id = 0;
+            }
+
+            public int getId() {
+                return id;
+            }
+
+            public IdGenerator inc() {
+                id++;
+                return this;
+            }
+        }
+
+        public void addGraph(StringBuilder sb, IdGenerator idGen) {
+            int rootId = idGen.getId();
+            sb.append(rootId).append("[label=\"").append(node).append("\"]").append(System.lineSeparator());
+            for (Tree child : this.children) {
+                int childId = idGen.inc().getId();
+                child.addGraph(sb, idGen);
+                sb
+                        .append(rootId)
+                        .append("->")
+                        .append(childId)
+                        .append(System.lineSeparator());
+            }
+        }
+    }
+};
+
+expr @(Tree) : e EOF $Put#(res1)@(res0);
+
+e @(Tree) : $makeTree#("E")
+    c $addTree#(res1)
+    e1 $addTree#(res2);
+
+e1 @(Tree)
+: $makeTree#("E'")
+    OR $addTerm#(res1)
+    c $addTree#(res2)
+    e1 $addTree#(res3)
+: $makeTree#("E'")
+    XOR $addTerm#(res1)
+    c $addTree#(res2)
+    e1 $addTree#(res3)
+: $makeTree#("E'") $addTerm#("Ɛ");
+
+c @(Tree) : $makeTree#("C")
+    n $addTree#(res1)
+    c1 $addTree#(res2);
+
+c1 @(Tree)
+: $makeTree#("C'")
+    AND $addTerm#(res1)
+    n $addTree#(res2)
+    c1 $addTree#(res3)
+: $makeTree#("C'") $addTerm#("Ɛ");
+
+n @(Tree)
+: $makeTree#("N")
+    NOT $addTerm#(res1)
+    n $addTree#(res2)
+: $makeTree#("N")
+    LPAREN $addTerm#(res1)
+    e $addTree#(res2)
+    RPAREN $addTerm#(res3)
+: $makeTree#("N") N $addTerm#(res1);
+
+OR : "or";
+XOR : "xor";
+AND : "and";
+NOT : "not";
+LPAREN : "\\(";
+RPAREN : "\\)";
+N : "\\p{L}";
+
+Word : "\\p{L}+" -> skip;
+WS : "[ \\t\\r\\n]+" -> skip;
+
+$makeTree #(root) : {
+    res0 = new Tree(root);
+};
+
+$addTree #(child) : {
+    res0.add(child);
+};
+
+$addTerm #(term) : {
+     res0.add(new Tree(term));
+};
+
+$Put #(x) @(y) : {
+    y = x;
+};

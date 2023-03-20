@@ -1,0 +1,10 @@
+$$resType$$ $$name$$($$argType$$ $$arg$$) throws ParseException {
+    $$resDeclare$$
+
+    switch (lex.curToken().tokenEnum) {
+$$caseRules$$
+        default:
+            throw new AssertionError();
+    }
+    $$resReturn$$
+}

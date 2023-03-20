@@ -1,0 +1,20 @@
+package $$package$$;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.ParseException;
+$$imports$$
+
+public class $$name$$ {
+    public static void main(String[] args) throws IOException {
+        InputStream is = Files.newInputStream(Path.of("$$examplePath$$"));
+        try {
+            $$Lexer$$ lexer = new $$Lexer$$(is);
+            $$Parser$$ parser = new $$Parser$$(lexer);
+            System.out.println(parser.expr());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+}

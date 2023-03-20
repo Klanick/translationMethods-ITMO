@@ -1,0 +1,68 @@
+grammar Calculator;
+
+expr @(Double) : e EOF $Put#(res1)@(res0);
+
+e @(Double) : t $Put#(res1)@(arg2) e1 $Put#(res2)@(res0);
+
+e1 #(Double) @(Double)
+: Plus t $Sum#(arg0, res2)@(arg3) e1 $Put#(res3)@(res0)
+: Minus t $Sub#(arg0, res2)@(arg3) e1 $Put#(res3)@(res0)
+: $Put#(arg0)@(res0);
+
+t @(Double) : p $Put#(res1)@(arg2) t1 $Put#(res2)@(res0);
+
+t1 #(Double) @(Double)
+: Mul p $Mul#(arg0, res2)@(arg3) t1 $Put#(res3)@(res0)
+: Div p $Div#(arg0, res2)@(arg3) t1 $Put#(res3)@(res0)
+: $Put#(arg0)@(res0);
+
+p @(Double) : f $Put#(res1)@(arg2) p1 $Put#(res2)@(res0);
+
+p1 #(Double) @(Double)
+: Pow f $Put#(res2)@(arg3) p1 $Pow#(arg0, res3)@(res0)
+: $Put#(arg0)@(res0);
+
+f @(Double)
+: LPAREN e RPAREN $Put#(res2)@(res0)
+: nat $Put#(res1)@(res0)
+: Minus nat $Mul#(res2, -1)@(res0);
+
+nat @(Double)
+: Number {
+  res0 = Double.parseDouble(res1);
+};
+
+Number : "[0-9]+";
+Plus : "\\+";
+Minus : "-";
+Mul : "\\*";
+Div : "\\/";
+Pow : "\\*\\*";
+LPAREN : "\\(";
+RPAREN : "\\)";
+
+$Pow #(op1, op2) @(result) : {
+    result = Math.pow(op1, op2);;
+};
+
+$Mul #(op1, op2) @(result) : {
+    result = op1 * op2;
+};
+
+$Div #(op1, op2) @(result) : {
+    result = op1 / op2;
+};
+
+$Sum #(op1, op2) @(result) : {
+    result = op1 + op2;
+};
+
+$Sub #(op1, op2) @(result) : {
+    result = op1 - op2;
+};
+
+$Put #(x) @(y) : {
+    y = x;
+};
+
+WS : "[ \\t\\r\\n]+" -> skip;

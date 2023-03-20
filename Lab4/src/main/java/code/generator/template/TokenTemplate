@@ -1,0 +1,38 @@
+package $$package$$;
+$$imports$$
+
+public class $$name$$ {
+   public final $$TokenEnum$$ tokenEnum;
+   public final String text;
+
+   $$name$$($$TokenEnum$$ tokenEnum) {
+       this(tokenEnum, null);
+   }
+   $$name$$($$TokenEnum$$ tokenEnum, String text) {
+       this.tokenEnum = tokenEnum;
+       this.text = text;
+   }
+
+    public enum $$TokenEnum$$ {
+        $$TokenEnumValues$$;
+        public final $$TokenMode$$ tokenMode;
+        public final String regexp;
+
+        $$TokenEnum$$() {
+            this(null);
+        }
+
+        $$TokenEnum$$(String regexp) {
+            this(regexp, $$TokenMode$$.Normal);
+        }
+
+        $$TokenEnum$$(String regexp, $$TokenMode$$ tokenMode) {
+            this.regexp = regexp;
+            this.tokenMode = tokenMode;
+        }
+    }
+
+    public enum $$TokenMode$$ {
+        $$TokenModeValues$$;
+    }
+}

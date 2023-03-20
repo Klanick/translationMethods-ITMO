@@ -1,0 +1,16 @@
+package $$package$$;
+
+import java.text.ParseException;
+$$imports$$
+
+public class $$name$$ {
+    private final $$Lexer$$ lex;
+
+    $$name$$($$Lexer$$ lex) {
+        this.lex = lex;
+    }
+
+    $$codeInsert$$
+
+    $$nonTermParsers$$
+}
